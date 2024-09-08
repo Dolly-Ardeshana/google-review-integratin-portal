@@ -1,0 +1,54 @@
+<!-- templates/reviews/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Reviews Portal</title>
+    <link rel="stylesheet" href="{% static 'reviews/styles.css' %}">
+</head>
+<body>
+    <h1>Google Reviews</h1>
+    <div id="reviews-container">
+        {% for review in reviews %}
+        <div class="review">
+            <p><strong>{{ review.authorName }}</strong>: {{ review.comment }}</p>
+            <p>Rating: {{ review.starRating }}</p>
+            <!-- Form to respond to reviews -->
+            <form method="post" action="{% url 'respond' review.name %}">
+                {% csrf_token %}
+                <textarea name="response" placeholder="Write your response..."></textarea>
+                <button type="submit">Respond</button>
+            </form>
+        </div>
+        {% endfor %}
+
+        {% if reviews %}
+            <ul>
+            {% for review in reviews %}
+                <div class="review">
+                    <li>
+                        <p><strong>Review by:</strong> {{ review.reviewer.displayName }}</p>
+                        <p><strong>Rating:</strong> {{ review.starRating }}</p>
+                        <p><strong>Comment:</strong> {{ review.comment }}</p>
+                        {% if review.reviewReply %}
+                            <p><strong>Your Reply:</strong> {{ review.reviewReply.comment }}</p>
+                        {% else %}
+                            <form method="post" action="{% url 'reply' %}">
+                                {% csrf_token %}
+                                {{ form.as_p }}  <!-- Display the reply form -->
+                                <input type="hidden" name="review_id" value="{{ review.name }}">  <!-- Include the review ID -->
+                                <button type="submit">Reply to Review</button>
+                            </form>
+                        {% endif %}
+                    </li>
+                </div>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No reviews found.</p>
+        {% endif %}
+    </div>
+    <script src="{% static 'reviews/script.js' %}"></script>
+</body>
+</html>
